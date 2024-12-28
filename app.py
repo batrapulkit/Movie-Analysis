@@ -10,11 +10,6 @@ from nltk.stem import WordNetLemmatizer
 import pickle
 from scipy.sparse import hstack
 
-import nltk
-from nltk.tokenize import word_tokenize
-from nltk.corpus import stopwords
-from nltk.stem import WordNetLemmatizer
-
 # Download necessary NLTK data
 nltk.download('punkt')
 nltk.download('stopwords')
