@@ -14,9 +14,9 @@ import nltk
 # Ensure NLTK punkt data is available
 def ensure_nltk_data():
     try:
-        nltk.data.find('tokenizers/punkt')
+        nltk.data.find('tokenizers/punkt')  # Look for the regular punkt tokenizer
     except LookupError:
-        nltk.download('punkt')
+        nltk.download('punkt')  # Download punkt if not available
     try:
         nltk.data.find('corpora/stopwords')
     except LookupError:
@@ -39,7 +39,7 @@ df = pd.read_csv('movies.csv')
 
 # Preprocessing function for the titles
 def preprocess_text(text):
-    tokens = word_tokenize(str(text).lower())
+    tokens = word_tokenize(str(text).lower())  # Tokenization using 'punkt'
     stop_words = set(stopwords.words('english'))
     tokens = [token for token in tokens if token.isalpha() and token not in stop_words]
     lemmatizer = WordNetLemmatizer()
