@@ -7,6 +7,10 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
+nltk.download('punkt')
+nltk.download('stopwords')
+nltk.download('wordnet')
+
 
 # Ensure that NLTK uses local resources
 nltk.data.path.append('nltk_data')  # Add the local nltk_data directory to the search path
