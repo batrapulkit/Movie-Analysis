@@ -9,18 +9,25 @@ from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from scipy.sparse import hstack
-
-# Ensure required NLTK data files are downloaded
 import nltk
 
-# Check if 'punkt' is already downloaded, if not, download it
-nltk_data_dirs = nltk.data.find('tokenizers/punkt')
-if not nltk_data_dirs:
-    nltk.download('punkt')
+# Ensure NLTK punkt data is available
+def ensure_nltk_data():
+    try:
+        nltk.data.find('tokenizers/punkt')
+    except LookupError:
+        nltk.download('punkt')
+    try:
+        nltk.data.find('corpora/stopwords')
+    except LookupError:
+        nltk.download('stopwords')
+    try:
+        nltk.data.find('corpora/wordnet')
+    except LookupError:
+        nltk.download('wordnet')
 
-# Check if 'stopwords' and 'wordnet' are already downloaded, if not, download them
-nltk.download('stopwords')
-nltk.download('wordnet')
+# Call the function to ensure necessary data is available
+ensure_nltk_data()
 
 # Load the pre-trained model (saved as 'sentiment_model.pkl')
 MODEL_PATH = os.path.join(os.getcwd(), 'sentiment_model.pkl')
