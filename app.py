@@ -8,7 +8,7 @@ from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 
-# Function to download required NLTK resources if not already present
+# Ensure necessary NLTK resources are available before the app starts
 def download_nltk_resources():
     try:
         nltk.data.find('tokenizers/punkt')
@@ -23,7 +23,7 @@ def download_nltk_resources():
     except LookupError:
         nltk.download('wordnet')  # Download wordnet corpus
 
-# Ensure necessary NLTK resources are available before the app starts
+# Download necessary NLTK resources
 download_nltk_resources()
 
 # Load pre-trained model and necessary data
