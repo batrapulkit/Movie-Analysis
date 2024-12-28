@@ -1,3 +1,4 @@
+import os
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -15,29 +16,21 @@ nltk.download('punkt')
 nltk.download('stopwords')
 nltk.download('wordnet')
 
-# Load the pre-trained model and vectorizer from the saved files
-with open('sentiment_model.pkl', 'rb') as model_file:
+# Load the pre-trained model (saved as 'sentiment_model.pkl')
+MODEL_PATH = os.path.join(os.getcwd(), 'sentiment_model.pkl')
+with open(MODEL_PATH, 'rb') as model_file:
     model = pickle.load(model_file)
-
-with open('vectorizer.pkl', 'rb') as vectorizer_file:
-    vectorizer = pickle.load(vectorizer_file)
 
 # Load the movie dataset
 df = pd.read_csv('movies.csv')
 
-# Preprocessing function
+# Preprocessing function for the titles
 def preprocess_text(text):
-    # Tokenization
     tokens = word_tokenize(str(text).lower())
-    
-    # Remove stopwords and non-alphabetic tokens
     stop_words = set(stopwords.words('english'))
     tokens = [token for token in tokens if token.isalpha() and token not in stop_words]
-    
-    # Lemmatization
     lemmatizer = WordNetLemmatizer()
     tokens = [lemmatizer.lemmatize(token) for token in tokens]
-    
     return ' '.join(tokens)
 
 # Function to categorize rating
@@ -53,14 +46,21 @@ def categorize_rating(rating):
 df['rating_category'] = df['rating'].apply(categorize_rating)
 
 # Function to predict rating category for a new movie title
-def predict_rating_category_from_dataset(title, df, model, vectorizer):
-    # Check if the movie title exists in the dataset
+def predict_rating_category_from_dataset(title, df, model):
     movie_data = df[df['title'].str.contains(title, case=False, na=False)]
     
     if not movie_data.empty:
-        # Preprocess the title and extract features using the vectorizer
+        # Preprocess the title and extract features using a TF-IDF Vectorizer
         processed_title = preprocess_text(movie_data.iloc[0]['title'])
+        
+        # Initialize and fit the vectorizer on the movie dataset (fit on the entire dataset or a subset)
+        vectorizer = TfidfVectorizer(max_features=1000)
+        X_title = vectorizer.fit_transform(df['title'].apply(preprocess_text))  # Apply preprocessing on the entire dataset
+
+        # Transform the new title (the one entered by the user)
         title_vector = vectorizer.transform([processed_title])
+        
+        # Get the rating for the movie
         rating = pd.to_numeric(movie_data.iloc[0]['rating'], errors='coerce')
         
         # Combine the rating with the processed title features
@@ -89,14 +89,14 @@ else:
 # Prediction input for movie title
 movie_title = st.text_input("Enter Movie Title for Rating Prediction:")
 if movie_title:
-    predicted_category = predict_rating_category_from_dataset(movie_title, df, model, vectorizer)
+    predicted_category = predict_rating_category_from_dataset(movie_title, df, model)
     st.write(f"Predicted category for '{movie_title}': {predicted_category}")
 
 # Model Evaluation Section
 if st.checkbox("Show Model Evaluation (Classification Report)"):
-    # Extract features and labels
     df['processed_text'] = df['title'].apply(preprocess_text)
-    X_title = vectorizer.transform(df['processed_text'])
+    vectorizer = TfidfVectorizer(max_features=1000)
+    X_title = vectorizer.fit_transform(df['processed_text'])
     X_ratings = np.array(df['rating']).reshape(-1, 1)
     X = hstack([X_title, X_ratings])
     y = df['rating_category']
