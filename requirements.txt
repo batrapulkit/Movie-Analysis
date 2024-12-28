@@ -3,6 +3,4 @@ pandas
 numpy
 nltk
 scikit-learn
-nltk-stopwords
-nltk-punkt
-nltk-wordnet
+
