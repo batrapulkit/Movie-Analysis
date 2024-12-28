@@ -7,15 +7,15 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
-nltk.download('punkt')
-nltk.download('stopwords')
-nltk.download('wordnet')
+
 
 import nltk
 from nltk.tokenize import word_tokenize
 
 # Download punkt tokenizer models if they are not available
 nltk.download('punkt')
+nltk.download('stopwords')
+nltk.download('wordnet')
 
 
 # Ensure that NLTK uses local resources
