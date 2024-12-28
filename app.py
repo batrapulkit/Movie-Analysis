@@ -11,18 +11,18 @@ from nltk.stem import WordNetLemmatizer
 from scipy.sparse import hstack
 import nltk
 
-# Ensure NLTK punkt data is available
+# Download NLTK resources explicitly to avoid the punkt_tab issue
 def ensure_nltk_data():
     try:
-        nltk.data.find('tokenizers/punkt')  # Look for the regular punkt tokenizer
+        nltk.data.find('tokenizers/punkt')  # Ensure 'punkt' tokenizer is available
     except LookupError:
-        nltk.download('punkt')  # Download punkt if not available
+        nltk.download('punkt')  # Download 'punkt' if not available
     try:
-        nltk.data.find('corpora/stopwords')
+        nltk.data.find('corpora/stopwords')  # Ensure 'stopwords' are available
     except LookupError:
         nltk.download('stopwords')
     try:
-        nltk.data.find('corpora/wordnet')
+        nltk.data.find('corpora/wordnet')  # Ensure 'wordnet' is available for lemmatization
     except LookupError:
         nltk.download('wordnet')
 
