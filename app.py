@@ -1,53 +1,95 @@
 import streamlit as st
-import joblib
 import pandas as pd
+import numpy as np
+import nltk
+import pickle
+from sklearn.feature_extraction.text import TfidfVectorizer
+from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
+from nltk.stem import WordNetLemmatizer
 
-# Load the trained model (Make sure the model is saved as a .pkl file)
-model = joblib.load('sentiment_model.pkl')  # Assuming your model is saved as sentiment_model.pkl
-# Optionally, load any other files (like encoders, scalers) if used
-# encoder = joblib.load('encoder.pkl')  # if you used one for encoding categorical data
+# Download NLTK data (only once when required)
+nltk.download('punkt')
+nltk.download('stopwords')
+nltk.download('wordnet')
 
-# Helper function to predict rating category
-def predict_rating_category(title, model, df):
-    # Check if the movie exists in the dataset
+# Load pre-trained model and necessary data
+with open('sentiment_model.pkl', 'rb') as file:
+    model = pickle.load(file)
+
+# Load the movie dataset for predicting movie ratings
+df = pd.read_csv('movies.csv')
+
+# Function to preprocess text for prediction
+def preprocess_text(text):
+    tokens = word_tokenize(str(text).lower())
+    stop_words = set(stopwords.words('english'))
+    tokens = [token for token in tokens if token.isalpha() and token not in stop_words]
+    lemmatizer = WordNetLemmatizer()
+    tokens = [lemmatizer.lemmatize(token) for token in tokens]
+    return ' '.join(tokens)
+
+# Function to categorize movie ratings
+def categorize_rating(rating):
+    if rating > 7:
+        return 'Good'
+    elif 4.5 <= rating <= 6.9:
+        return 'Neutral'
+    else:
+        return 'Bad'
+
+# Function to predict the rating category from the dataset
+def predict_rating_category_from_dataset(title, df):
+    # Check if the movie title exists in the dataset
     movie_data = df[df['title'].str.contains(title, case=False, na=False)]
-
+    
     if not movie_data.empty:
-        rating = movie_data.iloc[0]['ratings']  # Assuming 'ratings' column exists
-        # Predict the category based on the rating
-        if rating >= 7:
-            return "Good"
-        elif 4.5 <= rating < 7:
-            return "Neutral"
+        # Extract the rating from the dataset and convert it to a numeric value
+        rating = pd.to_numeric(movie_data.iloc[0]['rating'], errors='coerce')
+        
+        if not pd.isna(rating):
+            if rating >= 7:
+                return "Good"
+            elif 5 <= rating < 7:
+                return "Neutral"
+            else:
+                return "Bad"
         else:
-            return "Bad"
+            return "Invalid rating data"
     else:
-        return "Movie not found in the dataset."
+        return "Movie not found in dataset"
 
-# Title of the app
-st.title('Movie Rating Category Classifier')
-
-# Instructions for the user
-st.write("""
-    This app allows you to predict the category of a movie based on its rating.
-    Enter the movie title, and the app will classify the movie as **Good**, **Neutral**, or **Bad** based on its rating.
-""")
-
-# Create a text input field for the movie title
-movie_title = st.text_input('Enter Movie Title')
-
-# Add a button for the user to trigger the prediction
-if st.button('Predict'):
-    # Load the dataset (this can be a larger dataset from CSV or a database)
-    df = pd.read_csv('movies_dataset.csv')  # Assuming you have a CSV dataset of movies
-
+# Streamlit App
+def main():
+    st.title("Movie Rating Prediction")
+    
+    # User Input for Movie Title
+    movie_title = st.text_input("Enter the Movie Title:")
+    
     if movie_title:
-        # Call the function to predict the rating category
-        result = predict_rating_category(movie_title, model, df)
-        st.write(f"Predicted Category for '{movie_title}': {result}")
-    else:
-        st.write("Please enter a movie title to get the prediction.")
+        # Preprocess the movie title for prediction
+        processed_title = preprocess_text(movie_title)
+        
+        # Feature extraction for the movie title (TF-IDF + rating feature)
+        vectorizer = TfidfVectorizer(max_features=1000)
+        X_title = vectorizer.fit_transform([processed_title])
+        
+        # Add the rating (assuming we use a default rating value or fetch from the dataset)
+        X_ratings = np.array([5.5]).reshape(-1, 1)  # Example: neutral rating value
+        X = np.hstack([X_title.toarray(), X_ratings])
+        
+        # Predict using the trained model
+        prediction = model.predict(X)
+        
+        # Map prediction to readable label
+        result = prediction[0]
+        
+        st.subheader(f"Predicted Category: {result}")
+    
+    # Check prediction from the dataset based on title
+    if st.button("Predict from Dataset"):
+        result = predict_rating_category_from_dataset(movie_title, df)
+        st.subheader(f"Dataset Prediction: {result}")
 
-# Optional: Display some data from the dataset (for context)
-if st.checkbox('Show Sample Movies Dataset'):
-    st.write(df.head())
+if __name__ == "__main__":
+    main()
