@@ -23,7 +23,7 @@ def download_nltk_resources():
     except LookupError:
         nltk.download('wordnet')  # Download wordnet corpus
 
-# Ensure necessary NLTK resources are available
+# Ensure necessary NLTK resources are available before the app starts
 download_nltk_resources()
 
 # Load pre-trained model and necessary data
