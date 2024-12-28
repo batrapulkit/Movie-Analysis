@@ -11,6 +11,12 @@ nltk.download('punkt')
 nltk.download('stopwords')
 nltk.download('wordnet')
 
+import nltk
+from nltk.tokenize import word_tokenize
+
+# Download punkt tokenizer models if they are not available
+nltk.download('punkt')
+
 
 # Ensure that NLTK uses local resources
 nltk.data.path.append('nltk_data')  # Add the local nltk_data directory to the search path
