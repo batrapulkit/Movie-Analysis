@@ -10,10 +10,17 @@ from nltk.stem import WordNetLemmatizer
 import pickle
 from scipy.sparse import hstack
 
-# Download NLTK data (This will only download once during initialization)
+import nltk
+from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
+from nltk.stem import WordNetLemmatizer
+
+# Download necessary NLTK data
 nltk.download('punkt')
 nltk.download('stopwords')
 nltk.download('wordnet')
+nltk.download('punkt_tab')
+
 
 # Load the dataset
 df = pd.read_csv('movies.csv')
