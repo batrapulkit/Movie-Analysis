@@ -1,33 +1,23 @@
-import os
+vimport os
 import streamlit as st
 import pandas as pd
 import numpy as np
 import pickle
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics import classification_report
-from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from scipy.sparse import hstack
-import nltk
 
-# Download NLTK resources explicitly to avoid the punkt_tab issue
-def ensure_nltk_data():
-    try:
-        nltk.data.find('tokenizers/punkt')  # Ensure 'punkt' tokenizer is available
-    except LookupError:
-        nltk.download('punkt')  # Download 'punkt' if not available
-    try:
-        nltk.data.find('corpora/stopwords')  # Ensure 'stopwords' are available
-    except LookupError:
-        nltk.download('stopwords')
-    try:
-        nltk.data.find('corpora/wordnet')  # Ensure 'wordnet' is available for lemmatization
-    except LookupError:
-        nltk.download('wordnet')
-
-# Call the function to ensure necessary data is available
-ensure_nltk_data()
+# Remove NLTK-based tokenization and use a simpler split
+def preprocess_text(text):
+    # Simple whitespace-based tokenization (instead of word_tokenize)
+    tokens = str(text).lower().split()  # Convert text to lower case and split by whitespace
+    stop_words = set(stopwords.words('english'))
+    tokens = [token for token in tokens if token.isalpha() and token not in stop_words]
+    lemmatizer = WordNetLemmatizer()
+    tokens = [lemmatizer.lemmatize(token) for token in tokens]
+    return ' '.join(tokens)
 
 # Load the pre-trained model (saved as 'sentiment_model.pkl')
 MODEL_PATH = os.path.join(os.getcwd(), 'sentiment_model.pkl')
@@ -36,15 +26,6 @@ with open(MODEL_PATH, 'rb') as model_file:
 
 # Load the movie dataset
 df = pd.read_csv('movies.csv')
-
-# Preprocessing function for the titles
-def preprocess_text(text):
-    tokens = word_tokenize(str(text).lower())  # Tokenization using 'punkt'
-    stop_words = set(stopwords.words('english'))
-    tokens = [token for token in tokens if token.isalpha() and token not in stop_words]
-    lemmatizer = WordNetLemmatizer()
-    tokens = [lemmatizer.lemmatize(token) for token in tokens]
-    return ' '.join(tokens)
 
 # Function to categorize rating
 def categorize_rating(rating):
