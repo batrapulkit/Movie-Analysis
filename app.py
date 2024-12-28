@@ -8,10 +8,14 @@ from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 
-# Download NLTK data (only once when required)
-nltk.download('punkt')
-nltk.download('stopwords')
-nltk.download('wordnet')
+# Download necessary NLTK data (Ensure these resources are available before using them)
+try:
+    nltk.download('punkt')
+    nltk.download('stopwords')
+    nltk.download('wordnet')
+except Exception as e:
+    st.error(f"Error downloading NLTK data: {e}")
+    st.stop()
 
 # Load pre-trained model and necessary data
 with open('sentiment_model.pkl', 'rb') as file:
@@ -22,11 +26,11 @@ df = pd.read_csv('movies.csv')
 
 # Function to preprocess text for prediction
 def preprocess_text(text):
-    tokens = word_tokenize(str(text).lower())
-    stop_words = set(stopwords.words('english'))
-    tokens = [token for token in tokens if token.isalpha() and token not in stop_words]
-    lemmatizer = WordNetLemmatizer()
-    tokens = [lemmatizer.lemmatize(token) for token in tokens]
+    tokens = word_tokenize(str(text).lower())  # Tokenizing the text
+    stop_words = set(stopwords.words('english'))  # Get stop words
+    tokens = [token for token in tokens if token.isalpha() and token not in stop_words]  # Removing non-alphabetic and stopwords
+    lemmatizer = WordNetLemmatizer()  # Lemmatizing the tokens
+    tokens = [lemmatizer.lemmatize(token) for token in tokens]  # Lemmatize
     return ' '.join(tokens)
 
 # Function to categorize movie ratings
