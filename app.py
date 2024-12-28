@@ -10,9 +10,15 @@ from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from scipy.sparse import hstack
 
-# NLTK Data Downloads (ensure these are available in Streamlit Cloud)
+# Ensure required NLTK data files are downloaded
 import nltk
-nltk.download('punkt')
+
+# Check if 'punkt' is already downloaded, if not, download it
+nltk_data_dirs = nltk.data.find('tokenizers/punkt')
+if not nltk_data_dirs:
+    nltk.download('punkt')
+
+# Check if 'stopwords' and 'wordnet' are already downloaded, if not, download them
 nltk.download('stopwords')
 nltk.download('wordnet')
 
