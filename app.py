@@ -1,99 +1,113 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.linear_model import LogisticRegression
-import nltk
+import matplotlib.pyplot as plt
+import seaborn as sns
+from wordcloud import WordCloud
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
-import pickle
-from scipy.sparse import hstack
+import nltk
 
-# Download necessary NLTK data
+# Download NLTK data (if required)
 nltk.download('punkt')
 nltk.download('stopwords')
 nltk.download('wordnet')
-nltk.download('punkt_tab')
 
-
-# Load the dataset
-df = pd.read_csv('movies.csv')
-
-# Preprocessing functions (same as in your script)
-def categorize_rating(rating):
-    if rating > 7:
-        return 'Good'
-    elif 4.5 <= rating <= 6.9:
-        return 'Neutral'
-    else:
-        return 'Bad'
-
+# Function to preprocess the text (movie titles)
 def preprocess_text(text):
+    # Tokenization
     tokens = word_tokenize(str(text).lower())
+    
+    # Remove stopwords and non-alphabetic tokens
     stop_words = set(stopwords.words('english'))
     tokens = [token for token in tokens if token.isalpha() and token not in stop_words]
+    
+    # Lemmatization
     lemmatizer = WordNetLemmatizer()
     tokens = [lemmatizer.lemmatize(token) for token in tokens]
+    
     return ' '.join(tokens)
 
-# Apply text preprocessing to the 'title' column
-df['processed_text'] = df['title'].apply(preprocess_text)
+# Load the dataset
+@st.cache
+def load_data():
+    # Replace with the correct path to your dataset
+    df = pd.read_csv('movies.csv')
+    return df
 
-# Feature extraction: TF-IDF for the movie title and adding the 'ratings' as a feature
-vectorizer = TfidfVectorizer(max_features=1000)
-X_title = vectorizer.fit_transform(df['processed_text'])
-X_ratings = np.array(df['rating']).reshape(-1, 1)
-X = hstack([X_title, X_ratings])
+df = load_data()
 
-# Labels (rating category)
-y = df['rating_category']
+# Display dataset info
+st.title("Movie Data Analysis")
+st.write("### Dataset Overview")
+st.write(df.head())
 
-# Load the trained model (assuming the model is already saved as 'sentiment_model.pkl')
-with open('sentiment_model.pkl', 'rb') as file:
-    model = pickle.load(file)
+# Basic Information
+if st.checkbox("Show Basic Info"):
+    st.write("### Basic Info")
+    st.write(df.info())
 
-# Streamlit interface
-st.title('Movie Rating Category Prediction')
+# EDA section
+st.write("### Exploratory Data Analysis")
 
-# Input section
-movie_title = st.text_input('Enter a Movie Title', '')
+# Plot distribution of movie ratings
+if st.checkbox("Show Rating Distribution"):
+    st.write("#### Rating Distribution (Histogram)")
+    plt.figure(figsize=(10, 6))
+    sns.histplot(df['rating'], bins=20, kde=True)
+    plt.title('Distribution of Movie Ratings')
+    plt.xlabel('Rating')
+    plt.ylabel('Frequency')
+    st.pyplot()
 
-# Prediction logic
-if movie_title:
-    def predict_rating_category_from_dataset(title, df):
-        movie_data = df[df['title'].str.contains(title, case=False, na=False)]
-        if not movie_data.empty:
-            rating = pd.to_numeric(movie_data.iloc[0]['rating'], errors='coerce')
-            if not pd.isna(rating):
-                if rating >= 7:
-                    return "Good"
-                elif 5 <= rating < 7:
-                    return "Neutral"
-                else:
-                    return "Bad"
-            else:
-                return "Invalid rating data"
-        else:
-            return "Movie not found in dataset"
+# Plot count of rating categories
+if st.checkbox("Show Rating Category Distribution"):
+    st.write("#### Rating Category Distribution")
+    df['rating_category'] = df['rating'].apply(lambda x: 'Good' if x > 7 else ('Neutral' if 4.5 <= x <= 6.9 else 'Bad'))
+    plt.figure(figsize=(8, 6))
+    sns.countplot(x='rating_category', data=df, palette='Set2')
+    plt.title('Distribution of Rating Categories')
+    plt.xlabel('Rating Category')
+    plt.ylabel('Count')
+    st.pyplot()
 
-    predicted_category = predict_rating_category_from_dataset(movie_title, df)
-    st.write(f"Predicted category for '{movie_title}': {predicted_category}")
+# Missing Data Heatmap
+if st.checkbox("Show Missing Data Heatmap"):
+    st.write("#### Missing Data Heatmap")
+    plt.figure(figsize=(10, 6))
+    sns.heatmap(df.isnull(), cbar=False, cmap='viridis')
+    plt.title('Missing Data Heatmap')
+    st.pyplot()
 
-# Model-based prediction (optional)
-st.subheader('Or use the model to predict based on title and rating')
+# Word Cloud
+st.write("### Word Cloud of Movie Titles")
 
-input_title = st.text_input('Movie Title for Model Prediction', '')
-input_rating = st.slider('Movie Rating', 0.0, 10.0, 5.0, 0.1)
-
-if input_title and input_rating:
-    # Preprocess the title
-    processed_title = preprocess_text(input_title)
-    title_vector = vectorizer.transform([processed_title])
+if st.checkbox("Show Word Cloud"):
+    # Preprocess the movie titles to generate the word cloud
+    text = ' '.join(df['title'].dropna())  # Join all titles into one large string
+    wordcloud = WordCloud(width=800, height=400, background_color='white').generate(text)
     
-    # Combine with the rating feature
-    X_input = hstack([title_vector, np.array([[input_rating]])])
-    
-    # Predict with the model
-    model_prediction = model.predict(X_input)[0]
-    st.write(f"Model predicts the rating category as: {model_prediction}")
+    # Display word cloud
+    plt.figure(figsize=(10, 6))
+    plt.imshow(wordcloud, interpolation='bilinear')
+    plt.axis('off')  # Hide axes
+    plt.title('Word Cloud of Movie Titles', fontsize=15)
+    st.pyplot()
+
+# Display Top 10 movies by rating
+if st.checkbox("Show Top 10 Movies by Rating"):
+    st.write("#### Top 10 Movies by Rating")
+    top_movies = df[['title', 'rating']].sort_values(by='rating', ascending=False).head(10)
+    st.write(top_movies)
+
+# Option to download the processed dataset (if needed)
+@st.cache
+def preprocess_dataset():
+    df['processed_title'] = df['title'].apply(preprocess_text)
+    return df
+
+processed_df = preprocess_dataset()
+
+if st.button('Download Processed Dataset'):
+    processed_df.to_csv('processed_movies.csv', index=False)
+    st.write("Processed dataset is ready for download!")
