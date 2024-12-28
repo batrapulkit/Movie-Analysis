@@ -8,14 +8,23 @@ from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 
-# Download necessary NLTK data (Ensure these resources are available before using them)
-try:
-    nltk.download('punkt')
-    nltk.download('stopwords')
-    nltk.download('wordnet')
-except Exception as e:
-    st.error(f"Error downloading NLTK data: {e}")
-    st.stop()
+# Function to download required NLTK resources if not already present
+def download_nltk_resources():
+    try:
+        nltk.data.find('tokenizers/punkt')
+    except LookupError:
+        nltk.download('punkt')  # Download punkt tokenizer
+    try:
+        nltk.data.find('corpora/stopwords')
+    except LookupError:
+        nltk.download('stopwords')  # Download stopwords
+    try:
+        nltk.data.find('corpora/wordnet')
+    except LookupError:
+        nltk.download('wordnet')  # Download wordnet corpus
+
+# Ensure necessary NLTK resources are available
+download_nltk_resources()
 
 # Load pre-trained model and necessary data
 with open('sentiment_model.pkl', 'rb') as file:
