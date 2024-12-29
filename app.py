@@ -139,29 +139,28 @@ if movie_title:
     # Fetch movie details
     tmdb_details, omdb_details = fetch_movie_details(movie_title)
 
-    # Organize movie details into expandable sections for a more compact layout
-    with st.expander("Movie Details from TMDb"):
-        if tmdb_details != "API Error" and tmdb_details != "Movie not found":
-            st.image(tmdb_details['poster'], caption=f"Poster of {tmdb_details['title']}", width=200)
-            st.markdown(f"**Title:** {tmdb_details.get('title', 'N/A')}")
-            st.markdown(f"**Release Date:** {tmdb_details.get('release_date', 'N/A')}")
-            st.markdown(f"**Overview:** {tmdb_details.get('overview', 'N/A')}")
-            st.markdown(f"**Runtime:** {tmdb_details.get('runtime', 'N/A')} minutes")
-            st.markdown(f"**Available on:** {', '.join(tmdb_details.get('platforms', []))}")
-        else:
-            st.write("No TMDb details found")
+    # Display movie details from TMDb
+    if tmdb_details != "API Error" and tmdb_details != "Movie not found":
+        st.image(tmdb_details['poster'], caption=f"Poster of {tmdb_details['title']}", width=200)
+        st.markdown(f"**Title:** {tmdb_details.get('title', 'N/A')}")
+        st.markdown(f"**Release Date:** {tmdb_details.get('release_date', 'N/A')}")
+        st.markdown(f"**Overview:** {tmdb_details.get('overview', 'N/A')}")
+        st.markdown(f"**Runtime:** {tmdb_details.get('runtime', 'N/A')} minutes")
+        st.markdown(f"**Available on:** {', '.join(tmdb_details.get('platforms', []))}")
+    else:
+        st.write("No TMDb details found")
 
-    with st.expander("Movie Details from OMDb"):
-        if omdb_details != "API Error" and omdb_details != "Movie not found":
-            st.image(omdb_details['poster'], caption=f"Poster of {omdb_details['title']}", width=200)
-            st.markdown(f"**Title:** {omdb_details.get('title', 'N/A')}")
-            st.markdown(f"**Year:** {omdb_details.get('year', 'N/A')}")
-            st.markdown(f"**Plot:** {omdb_details.get('plot', 'N/A')}")
-            st.markdown(f"**Actors:** {omdb_details.get('actors', 'N/A')}")
-            st.markdown(f"**IMDb Rating:** {omdb_details.get('imdb_rating', 'N/A')}")
-            st.markdown(f"**Runtime:** {omdb_details.get('runtime', 'N/A')}")
-        else:
-            st.write("No OMDb details found")
+    # Display movie details from OMDb
+    if omdb_details != "API Error" and omdb_details != "Movie not found":
+        st.image(omdb_details['poster'], caption=f"Poster of {omdb_details['title']}", width=200)
+        st.markdown(f"**Title:** {omdb_details.get('title', 'N/A')}")
+        st.markdown(f"**Year:** {omdb_details.get('year', 'N/A')}")
+        st.markdown(f"**Plot:** {omdb_details.get('plot', 'N/A')}")
+        st.markdown(f"**Actors:** {omdb_details.get('actors', 'N/A')}")
+        st.markdown(f"**IMDb Rating:** {omdb_details.get('imdb_rating', 'N/A')}")
+        st.markdown(f"**Runtime:** {omdb_details.get('runtime', 'N/A')}")
+    else:
+        st.write("No OMDb details found")
 
 # Custom CSS for better UI
 st.markdown(
