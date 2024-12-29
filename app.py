@@ -105,7 +105,7 @@ st.markdown("""
             font-family: 'Poppins', sans-serif;
         }
         .title {
-            font-size: 72px;  /* Increased font size */
+            font-size: 60px;  /* Increased font size */
             font-weight: bold;
             color: #FF4500;  /* Bright orange color */
             text-align: center;
