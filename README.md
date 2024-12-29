@@ -1,30 +1,54 @@
-# Movie Analysis
+# 🎬 Movie Rating Prediction and Details 🎬
 
-This project is a comprehensive movie analysis model that predicts movie ratings and categorizes them based on their performance. The model utilizes machine learning algorithms and natural language processing (NLP) techniques to analyze movie titles, ratings, and other features to provide insights on the movies' reception.
+This web app allows users to predict the rating category of a movie (Good, Neutral, or Bad) based on a dataset, and fetch detailed information about the movie from two popular APIs (TMDb and OMDb). Users can input a movie title and get a predicted rating category along with information such as release date, runtime, plot, actors, and IMDb ratings.
 
-## Project Overview
+## Features
+- **Movie Rating Prediction**: Based on a dataset of movie ratings, it predicts whether a movie is "Good," "Neutral," or "Bad."
+- **Movie Details**: Fetches detailed movie information from:
+  - **TMDb API**: Provides title, release date, overview, runtime, and platforms where the movie is available.
+  - **OMDb API**: Fetches title, year, plot, actors, IMDb rating, and runtime.
+- **Visual Design**: Includes a cool background, stylized headers, and dynamic movie information display.
 
-The Movie Analysis model is designed to:
-- Predict movie rating categories based on movie titles and other features.
-- Analyze movie reviews to categorize them as "Good," "Neutral," or "Bad" based on their ratings.
+## Installation
 
-### Key Features:
-- **Rating Categorization**: Categorizes movie ratings into three categories: "Good" (rating > 7), "Neutral" (rating between 4.5 and 6.9), and "Bad" (rating < 4.5).
-- **Natural Language Processing (NLP)**: Uses text preprocessing techniques like tokenization, stopword removal, and lemmatization to process movie titles.
-- **Machine Learning**: Trains a logistic regression model using movie titles (TF-IDF features) and ratings to predict rating categories.
+### Prerequisites
+To run the app, make sure you have Python 3.8 or higher installed. You will also need the following libraries:
 
-## Requirements
+- `streamlit`
+- `pandas`
+- `pickle`
+- `requests`
+- `scikit-learn`
+- `tabulate`
 
-This project requires the following libraries:
+### Steps to Install
 
-- Python 3.x
-- `pandas` – For data manipulation
-- `scikit-learn` – For machine learning models
-- `nltk` – For natural language processing
-- `numpy` – For numerical operations
-- `scipy` – For sparse matrix operations
+1. **Clone the repository**:
 
-To install the dependencies, run:
+   ```bash
+   git clone https://github.com/yourusername/movie-rating-prediction.git
+   cd movie-rating-prediction
+   ```
 
-```bash
-pip install pandas scikit-learn nltk numpy scipy
+## APIs Used
+
+- **TMDb API**: [TMDb Documentation](https://www.themoviedb.org/documentation/api)
+- **OMDb API**: [OMDb Documentation](http://www.omdbapi.com/)
+
+Make sure to get an API key for both TMDb and OMDb and replace the API keys in the `app.py` file.
+
+## Usage
+
+1. **Enter a Movie Title**: In the provided input field, type the name of the movie you want to search for.
+2. **View Predicted Rating**: The app will display whether the movie is categorized as "Good," "Neutral," or "Bad" based on the dataset.
+3. **View Detailed Information**:
+   - **TMDb Details**: Movie title, release date, overview, runtime, and available platforms.
+   - **OMDb Details**: Movie title, year, plot, actors, IMDb rating, and runtime.
+
+### Example
+
+- **Input**: `Inception`
+- **Output**:
+  - **Predicted Category**: Good
+  - **TMDb Details**: Title, Overview, Platforms, etc.
+  - **OMDb Details**: Plot, Actors, IMDb Rating, etc.
