@@ -158,11 +158,11 @@ if movie_title:
         else:
             st.write("No OMDb details found")
 
-# Footer with improved formatting
+# Footer with fixed positioning
 st.markdown("""
     <style>
         .footer {
-            position: absolute;
+            position: fixed;
             bottom: 0;
             left: 0;
             width: 100%;
