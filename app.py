@@ -40,9 +40,9 @@ def fetch_tmdb_movie_details(movie_name):
             movie_id = movie.get('id')
             return fetch_tmdb_movie_details_by_id(movie_id)
         else:
-            return "Movie not found"
+            return None  # Return None when movie is not found
     else:
-        return "API Error"
+        return None  # Return None for API errors
 
 def fetch_tmdb_movie_details_by_id(movie_id):
     api_key = 'da80b7c25c785e5cb5e5bc96d3f1e213'
@@ -60,7 +60,7 @@ def fetch_tmdb_movie_details_by_id(movie_id):
             'poster': f"https://image.tmdb.org/t/p/w500{movie_data.get('poster_path', '')}"
         }
     else:
-        return "API Error"
+        return None  # Return None for API errors
 
 # OMDb API integration
 def fetch_omdb_movie_details(movie_name):
@@ -81,9 +81,9 @@ def fetch_omdb_movie_details(movie_name):
                 'poster': data.get('Poster', 'N/A')
             }
         else:
-            return "Movie not found"
+            return None  # Return None when movie is not found
     else:
-        return "API Error"
+        return None  # Return None for API errors
 
 # Function to fetch movie details from both APIs and display in a table format
 def fetch_movie_details(movie_name):
@@ -128,22 +128,23 @@ if movie_title:
                 else:
                     return "Bad"
             else:
-                return "Invalid rating data"
+                return None  # Return None if rating data is not available
         else:
-            return "Movie not found in dataset"
+            return None  # Return None when movie is not found in dataset
 
-    # Display rating prediction
+    # Get the predicted rating category
     predicted_category = predict_rating_category_from_dataset(movie_title, df, model)
-    st.subheader(f"Predicted Rating for '{movie_title}': {predicted_category}")
+
+    # Only display predicted rating if valid
+    if predicted_category:
+        st.subheader(f"Predicted Rating for '{movie_title}': {predicted_category}")
 
     # Fetch movie details
     tmdb_details, omdb_details = fetch_movie_details(movie_title)
 
-    # Display movie details side by side using columns
-    col1, col2 = st.columns(2)
-
-    # Movie details from TMDb in first column
-    if tmdb_details != "API Error" and tmdb_details != "Movie not found":
+    # Only display movie details if found
+    if tmdb_details:
+        col1, col2 = st.columns(2)
         with col1:
             st.subheader("TMDb Movie Details")
             st.image(tmdb_details['poster'], caption=f"Poster of {tmdb_details['title']}", width=200)
@@ -152,11 +153,8 @@ if movie_title:
             st.markdown(f"**Overview:** {tmdb_details.get('overview', 'N/A')}")
             st.markdown(f"**Runtime:** {tmdb_details.get('runtime', 'N/A')} minutes")
             st.markdown(f"**Available on:** {', '.join(tmdb_details.get('platforms', []))}")
-    else:
-        st.write("No TMDb details found")
-
-    # Movie details from OMDb in second column
-    if omdb_details != "API Error" and omdb_details != "Movie not found":
+    
+    if omdb_details:
         with col2:
             st.subheader("OMDb Movie Details")
             st.image(omdb_details['poster'], caption=f"Poster of {omdb_details['title']}", width=200)
@@ -166,43 +164,3 @@ if movie_title:
             st.markdown(f"**Actors:** {omdb_details.get('actors', 'N/A')}")
             st.markdown(f"**IMDb Rating:** {omdb_details.get('imdb_rating', 'N/A')}")
             st.markdown(f"**Runtime:** {omdb_details.get('runtime', 'N/A')}")
-    else:
-        st.write("No OMDb details found")
-
-# Custom CSS for better UI
-st.markdown(
-    """
-    <style>
-    .stButton>button {
-        background-color: #2f54eb;
-        color: white;
-        font-size: 16px;
-        font-weight: bold;
-        border-radius: 5px;
-        padding: 10px 20px;
-        border: none;
-    }
-
-    .stTextInput>div>div>input {
-        border-radius: 5px;
-        padding: 10px;
-    }
-
-    .stTitle {
-        font-size: 36px;
-        font-weight: 600;
-        color: #2f54eb;
-    }
-
-    .stSubheader {
-        font-size: 24px;
-        font-weight: 600;
-        color: #595959;
-    }
-
-    .stImage {
-        border-radius: 10px;
-    }
-    </style>
-    """, unsafe_allow_html=True
-)
