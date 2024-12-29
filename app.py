@@ -104,7 +104,7 @@ st.write(
 # Movie Title Input without the sidebar
 movie_title = st.text_input("Enter Movie Title", key="movie_title", placeholder="e.g., Inception")
 
-# Main Content: If movie title is entered
+# Main Content: If movie title is entered, automatically show details
 if movie_title:
     # Load dataset and model
     df = load_data()
