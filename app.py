@@ -89,30 +89,7 @@ def fetch_movie_details(movie_name):
     tmdb_details = fetch_tmdb_movie_details(movie_name)
     omdb_details = fetch_omdb_movie_details(movie_name)
 
-    if tmdb_details != "Movie not found" and omdb_details != "Movie not found":
-        # Using markdown for better formatting
-        result = f"""
-        **Movie Title:** {tmdb_details.get('title', 'N/A')}
-        
-        **Release Date:** {tmdb_details.get('release_date', 'N/A')}
-        
-        **Overview:** {tmdb_details.get('overview', 'N/A')}
-        
-        **Runtime:** {tmdb_details.get('runtime', 'N/A')}
-        
-        **Platforms:** {', '.join(tmdb_details.get('platforms', []))}
-        
-        **Year (OMDb):** {omdb_details.get('year', 'N/A')}
-        
-        **Plot (OMDb):** {omdb_details.get('plot', 'N/A')}
-        
-        **Actors (OMDb):** {omdb_details.get('actors', 'N/A')}
-        
-        **IMDb Rating (OMDb):** {omdb_details.get('imdb_rating', 'N/A')}
-        """
-        return result
-    else:
-        return "Movie not found in both APIs"
+    return tmdb_details, omdb_details
 
 # Streamlit interface
 st.title("Movie Rating Prediction and Details")
@@ -126,7 +103,6 @@ if movie_title:
 
     # Movie rating prediction
     def preprocess_text(text):
-        # Simple text preprocessing
         return text.lower()
 
     def predict_rating_category_from_dataset(title, df, model):
@@ -152,7 +128,28 @@ if movie_title:
     st.subheader(f"Predicted category for '{movie_title}':")
     st.write(f"**{predicted_category}**")
 
-    # Display movie details
-    st.subheader(f"Movie Details for '{movie_title}':")
-    movie_details = fetch_movie_details(movie_title)
-    st.markdown(movie_details)
+    # Fetch movie details
+    tmdb_details, omdb_details = fetch_movie_details(movie_title)
+
+    # Display TMDb details in a collapsible section
+    with st.expander("TMDb Details"):
+        if tmdb_details != "API Error" and tmdb_details != "Movie not found":
+            st.write(f"**Title:** {tmdb_details.get('title', 'N/A')}")
+            st.write(f"**Release Date:** {tmdb_details.get('release_date', 'N/A')}")
+            st.write(f"**Overview:** {tmdb_details.get('overview', 'N/A')}")
+            st.write(f"**Runtime:** {tmdb_details.get('runtime', 'N/A')}")
+            st.write(f"**Platforms:** {', '.join(tmdb_details.get('platforms', []))}")
+        else:
+            st.write("No TMDb details found")
+
+    # Display OMDb details in a collapsible section
+    with st.expander("OMDb Details"):
+        if omdb_details != "API Error" and omdb_details != "Movie not found":
+            st.write(f"**Title:** {omdb_details.get('title', 'N/A')}")
+            st.write(f"**Year:** {omdb_details.get('year', 'N/A')}")
+            st.write(f"**Plot:** {omdb_details.get('plot', 'N/A')}")
+            st.write(f"**Actors:** {omdb_details.get('actors', 'N/A')}")
+            st.write(f"**IMDb Rating:** {omdb_details.get('imdb_rating', 'N/A')}")
+            st.write(f"**Runtime:** {omdb_details.get('runtime', 'N/A')}")
+        else:
+            st.write("No OMDb details found")
