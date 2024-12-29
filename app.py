@@ -90,19 +90,27 @@ def fetch_movie_details(movie_name):
     omdb_details = fetch_omdb_movie_details(movie_name)
 
     if tmdb_details != "Movie not found" and omdb_details != "Movie not found":
-        table = [
-            ['Attribute', 'TMDb', 'OMDb'],
-            ['Title', tmdb_details.get('title', 'N/A'), omdb_details.get('title', 'N/A')],
-            ['Release Date', tmdb_details.get('release_date', 'N/A'), 'N/A'],
-            ['Overview', tmdb_details.get('overview', 'N/A'), 'N/A'],
-            ['Platforms', ', '.join(tmdb_details.get('platforms', [])), 'N/A'],
-            ['Year', 'N/A', omdb_details.get('year', 'N/A')],
-            ['Plot', 'N/A', omdb_details.get('plot', 'N/A')],
-            ['Actors', 'N/A', omdb_details.get('actors', 'N/A')],
-            ['IMDB Rating', 'N/A', omdb_details.get('imdb_rating', 'N/A')],
-            ['Runtime', tmdb_details.get('runtime', 'N/A'), omdb_details.get('runtime', 'N/A')]
-        ]
-        return tabulate(table, headers="firstrow", tablefmt="grid")
+        # Using markdown for better formatting
+        result = f"""
+        **Movie Title:** {tmdb_details.get('title', 'N/A')}
+        
+        **Release Date:** {tmdb_details.get('release_date', 'N/A')}
+        
+        **Overview:** {tmdb_details.get('overview', 'N/A')}
+        
+        **Runtime:** {tmdb_details.get('runtime', 'N/A')}
+        
+        **Platforms:** {', '.join(tmdb_details.get('platforms', []))}
+        
+        **Year (OMDb):** {omdb_details.get('year', 'N/A')}
+        
+        **Plot (OMDb):** {omdb_details.get('plot', 'N/A')}
+        
+        **Actors (OMDb):** {omdb_details.get('actors', 'N/A')}
+        
+        **IMDb Rating (OMDb):** {omdb_details.get('imdb_rating', 'N/A')}
+        """
+        return result
     else:
         return "Movie not found in both APIs"
 
@@ -141,9 +149,10 @@ if movie_title:
 
     # Display rating prediction
     predicted_category = predict_rating_category_from_dataset(movie_title, df, model)
-    st.write(f"Predicted category for '{movie_title}': {predicted_category}")
+    st.subheader(f"Predicted category for '{movie_title}':")
+    st.write(f"**{predicted_category}**")
 
     # Display movie details
+    st.subheader(f"Movie Details for '{movie_title}':")
     movie_details = fetch_movie_details(movie_title)
-    st.write("Movie Details from APIs:")
-    st.write(movie_details)
+    st.markdown(movie_details)
