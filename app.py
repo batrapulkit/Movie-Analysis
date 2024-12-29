@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import pickle
 import requests
-from tabulate import tabulate
 
 # Load the pre-trained sentiment model and dataset
 @st.cache_resource
@@ -137,33 +136,25 @@ if movie_title:
     # Display TMDb details with a clean layout
     with st.expander("TMDb Details", expanded=True):
         if tmdb_details != "API Error" and tmdb_details != "Movie not found":
-            col1, col2 = st.columns([3, 2])
-            with col1:
-                if tmdb_details['poster'] != 'N/A':
-                    st.image(tmdb_details['poster'], caption=f"Poster of {tmdb_details['title']}", use_container_width=True)
-            with col2:
-                st.markdown(f"**Title:** {tmdb_details.get('title', 'N/A')}")
-                st.markdown(f"**Release Date:** {tmdb_details.get('release_date', 'N/A')}")
-                st.markdown(f"**Overview:** {tmdb_details.get('overview', 'N/A')}")
-                st.markdown(f"**Runtime:** {tmdb_details.get('runtime', 'N/A')} minutes")
-                st.markdown(f"**Available on:** {', '.join(tmdb_details.get('platforms', []))}")
+            st.image(tmdb_details['poster'], caption=f"Poster of {tmdb_details['title']}", use_container_width=True)
+            st.markdown(f"**Title:** {tmdb_details.get('title', 'N/A')}")
+            st.markdown(f"**Release Date:** {tmdb_details.get('release_date', 'N/A')}")
+            st.markdown(f"**Overview:** {tmdb_details.get('overview', 'N/A')}")
+            st.markdown(f"**Runtime:** {tmdb_details.get('runtime', 'N/A')} minutes")
+            st.markdown(f"**Available on:** {', '.join(tmdb_details.get('platforms', []))}")
         else:
             st.write("No TMDb details found")
 
     # Display OMDb details with a clean layout
     with st.expander("OMDb Details", expanded=True):
         if omdb_details != "API Error" and omdb_details != "Movie not found":
-            col1, col2 = st.columns([3, 2])
-            with col1:
-                if omdb_details['poster'] != 'N/A':
-                    st.image(omdb_details['poster'], caption=f"Poster of {omdb_details['title']}", use_container_width=True)
-            with col2:
-                st.markdown(f"**Title:** {omdb_details.get('title', 'N/A')}")
-                st.markdown(f"**Year:** {omdb_details.get('year', 'N/A')}")
-                st.markdown(f"**Plot:** {omdb_details.get('plot', 'N/A')}")
-                st.markdown(f"**Actors:** {omdb_details.get('actors', 'N/A')}")
-                st.markdown(f"**IMDb Rating:** {omdb_details.get('imdb_rating', 'N/A')}")
-                st.markdown(f"**Runtime:** {omdb_details.get('runtime', 'N/A')}")
+            st.image(omdb_details['poster'], caption=f"Poster of {omdb_details['title']}", use_container_width=True)
+            st.markdown(f"**Title:** {omdb_details.get('title', 'N/A')}")
+            st.markdown(f"**Year:** {omdb_details.get('year', 'N/A')}")
+            st.markdown(f"**Plot:** {omdb_details.get('plot', 'N/A')}")
+            st.markdown(f"**Actors:** {omdb_details.get('actors', 'N/A')}")
+            st.markdown(f"**IMDb Rating:** {omdb_details.get('imdb_rating', 'N/A')}")
+            st.markdown(f"**Runtime:** {omdb_details.get('runtime', 'N/A')}")
         else:
             st.write("No OMDb details found")
 
