@@ -94,38 +94,7 @@ def fetch_movie_details(movie_name):
     return tmdb_details, omdb_details
 
 # Streamlit interface
-
-# Custom CSS for styling
-st.markdown("""
-    <style>
-        body {
-            background-image: url('https://images.unsplash.com/photo-1485826657971-8e78487eb09b');  /* Cool background image */
-            background-size: cover;
-            color: white;
-            font-family: 'Poppins', sans-serif;
-        }
-        .title {
-            font-size: 160px;  /* Increased font size */
-            font-weight: bold;
-            color: #FF4500;  /* Bright orange color */
-            text-align: center;
-            text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.7);  /* Added text shadow for cool effect */
-            font-family: 'Lobster', cursive;  /* Fun, stylish font */
-        }
-        .stButton button {
-            background-color: #FF4500;
-            color: white;
-            border-radius: 5px;
-        }
-        .stExpander {
-            background-color: rgba(0, 0, 0, 0.3);
-            border-radius: 10px;
-        }
-    </style>
-""", unsafe_allow_html=True)
-
-# Heading for the page
-st.markdown('<p class="title">🎬 Movie Rating Prediction and Details 🎬</p>', unsafe_allow_html=True)
+st.title("Movie Rating Prediction and Details")
 
 movie_title = st.text_input("Enter Movie Title")
 
