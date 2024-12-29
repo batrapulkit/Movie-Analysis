@@ -136,7 +136,7 @@ if movie_title:
     # Display TMDb details with a clean layout
     with st.expander("TMDb Details", expanded=True):
         if tmdb_details != "API Error" and tmdb_details != "Movie not found":
-            st.image(tmdb_details['poster'], caption=f"Poster of {tmdb_details['title']}", use_container_width=True)
+            st.image(tmdb_details['poster'], caption=f"Poster of {tmdb_details['title']}", use_container_width=True, width=300)  # Reduced image width
             st.markdown(f"**Title:** {tmdb_details.get('title', 'N/A')}")
             st.markdown(f"**Release Date:** {tmdb_details.get('release_date', 'N/A')}")
             st.markdown(f"**Overview:** {tmdb_details.get('overview', 'N/A')}")
@@ -148,7 +148,7 @@ if movie_title:
     # Display OMDb details with a clean layout
     with st.expander("OMDb Details", expanded=True):
         if omdb_details != "API Error" and omdb_details != "Movie not found":
-            st.image(omdb_details['poster'], caption=f"Poster of {omdb_details['title']}", use_container_width=True)
+            st.image(omdb_details['poster'], caption=f"Poster of {omdb_details['title']}", use_container_width=True, width=300)  # Reduced image width
             st.markdown(f"**Title:** {omdb_details.get('title', 'N/A')}")
             st.markdown(f"**Year:** {omdb_details.get('year', 'N/A')}")
             st.markdown(f"**Plot:** {omdb_details.get('plot', 'N/A')}")
