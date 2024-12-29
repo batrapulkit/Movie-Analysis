@@ -13,12 +13,6 @@ The Movie Analysis model is designed to:
 - **Natural Language Processing (NLP)**: Uses text preprocessing techniques like tokenization, stopword removal, and lemmatization to process movie titles.
 - **Machine Learning**: Trains a logistic regression model using movie titles (TF-IDF features) and ratings to predict rating categories.
 
-## Demo
-
-Check out the demo of the Movie Rating Model:
-
-[![Movie Rating Model Demo](https://img.youtube.com/vi/dQw4w9WgXcQ/0.jpg)](https://www.youtube.com/watch?v=dQw4w9WgXcQ&autoplay=1)
-
 ## Requirements
 
 This project requires the following libraries:
