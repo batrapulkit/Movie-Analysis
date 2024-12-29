@@ -158,7 +158,7 @@ if movie_title:
         else:
             st.write("No OMDb details found")
 
-# Footer
+# Footer with improved formatting
 st.markdown("""
     <style>
         .footer {
