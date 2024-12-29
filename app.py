@@ -145,6 +145,7 @@ if movie_title:
     # Movie details from TMDb in first column
     if tmdb_details != "API Error" and tmdb_details != "Movie not found":
         with col1:
+            st.subheader("TMDb Movie Details")
             st.image(tmdb_details['poster'], caption=f"Poster of {tmdb_details['title']}", width=200)
             st.markdown(f"**Title:** {tmdb_details.get('title', 'N/A')}")
             st.markdown(f"**Release Date:** {tmdb_details.get('release_date', 'N/A')}")
@@ -157,6 +158,7 @@ if movie_title:
     # Movie details from OMDb in second column
     if omdb_details != "API Error" and omdb_details != "Movie not found":
         with col2:
+            st.subheader("OMDb Movie Details")
             st.image(omdb_details['poster'], caption=f"Poster of {omdb_details['title']}", width=200)
             st.markdown(f"**Title:** {omdb_details.get('title', 'N/A')}")
             st.markdown(f"**Year:** {omdb_details.get('year', 'N/A')}")
