@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import pickle
 import requests
-from tabulate import tabulate
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
@@ -99,11 +98,15 @@ st.set_page_config(page_title="Movie Rating Prediction and Details", layout="wid
 # Add some custom CSS for a better look
 st.markdown("""
     <style>
-        .title { color: #FF6347; font-size: 36px; font-weight: bold; }
+        .title { color: #FF6347; font-size: 36px; font-weight: bold; text-align: center; }
         .movie-title { color: #2E8B57; font-size: 30px; font-weight: bold; }
         .movie-details { font-size: 18px; }
-        .header { text-align: center; font-size: 24px; }
+        .header { text-align: center; font-size: 24px; margin-bottom: 20px; }
         .platforms { color: #6A5ACD; }
+        .predict-btn { background-color: #FF6347; color: white; font-size: 16px; font-weight: bold; }
+        .expander-header { background-color: #FFD700; font-size: 18px; padding: 10px; }
+        .movie-card { padding: 10px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); margin: 10px; }
+        .poster-img { border-radius: 10px; }
     </style>
 """, unsafe_allow_html=True)
 
@@ -148,12 +151,12 @@ if movie_title:
     tmdb_details, omdb_details = fetch_movie_details(movie_title)
 
     # Display TMDb details in a collapsible section
-    with st.expander("TMDb Details"):
+    with st.expander("TMDb Details", expanded=True):
         if tmdb_details != "API Error" and tmdb_details != "Movie not found":
             col1, col2 = st.columns([3, 2])
             with col1:
                 if tmdb_details['poster'] != 'N/A':
-                    st.image(tmdb_details['poster'], caption=f"Poster of {tmdb_details['title']}")
+                    st.image(tmdb_details['poster'], caption=f"Poster of {tmdb_details['title']}", use_column_width=True)
             with col2:
                 st.write(f"**Title:** {tmdb_details.get('title', 'N/A')}")
                 st.write(f"**Release Date:** {tmdb_details.get('release_date', 'N/A')}")
@@ -165,12 +168,12 @@ if movie_title:
             st.write("No TMDb details found")
 
     # Display OMDb details in a collapsible section
-    with st.expander("OMDb Details"):
+    with st.expander("OMDb Details", expanded=True):
         if omdb_details != "API Error" and omdb_details != "Movie not found":
             col1, col2 = st.columns([3, 2])
             with col1:
                 if omdb_details['poster'] != 'N/A':
-                    st.image(omdb_details['poster'], caption=f"Poster of {omdb_details['title']}")
+                    st.image(omdb_details['poster'], caption=f"Poster of {omdb_details['title']}", use_column_width=True)
             with col2:
                 st.write(f"**Title:** {omdb_details.get('title', 'N/A')}")
                 st.write(f"**Year:** {omdb_details.get('year', 'N/A')}")
