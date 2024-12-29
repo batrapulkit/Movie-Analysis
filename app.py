@@ -105,15 +105,15 @@ st.markdown("""
             font-family: 'Poppins', sans-serif;
         }
         .title {
-            font-size: 56px;
+            font-size: 72px;  /* Increased font size */
             font-weight: bold;
-            color: #ff6347;
+            color: #FF4500;  /* Bright orange color */
             text-align: center;
-            text-shadow: 3px 3px 5px rgba(0,0,0,0.7);
-            font-family: 'Lobster', cursive;
+            text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.7);  /* Added text shadow for cool effect */
+            font-family: 'Lobster', cursive;  /* Fun, stylish font */
         }
         .stButton button {
-            background-color: #ff6347;
+            background-color: #FF4500;
             color: white;
             border-radius: 5px;
         }
