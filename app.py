@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import pickle
 import requests
-from tabulate import tabulate
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
@@ -95,21 +94,29 @@ def fetch_movie_details(movie_name):
 
 # Streamlit interface
 st.set_page_config(page_title="Movie Rating Prediction", page_icon=":movie_camera:", layout="wide")
+
+# Introduction
 st.title("🎬 Movie Rating Prediction & Details")
+st.write(
+    "Welcome to the Movie Rating Prediction app! Enter a movie title below to predict its rating and get detailed movie information like runtime, plot, and where to watch it."
+)
 
-# Sidebar for input
+# Sidebar: Movie Title Input
 with st.sidebar:
-    st.header("Movie Search")
-    movie_title = st.text_input("Enter Movie Title", key="movie_title")
+    st.header("Search Movie")
+    movie_title = st.text_input("Enter Movie Title", key="movie_title", placeholder="e.g., Inception")
 
+    # Instructions
     st.markdown(
         """
-        This app allows you to predict movie ratings, get movie details, and find out where the movie is available for streaming.
-        Enter a movie title in the search box to get started!
+        Enter the title of the movie you're interested in. The app will predict its rating and fetch additional details such as:
+        - Plot summary
+        - Cast and actors
+        - Available streaming platforms
         """
     )
 
-# Main content
+# Main Content: If movie title is entered
 if movie_title:
     # Load dataset and model
     df = load_data()
@@ -139,19 +146,15 @@ if movie_title:
 
     # Display rating prediction
     predicted_category = predict_rating_category_from_dataset(movie_title, df, model)
-    st.subheader(f"Predicted category for '{movie_title}':")
-    st.write(f"**{predicted_category}**")
+    st.subheader(f"Predicted Rating for '{movie_title}': {predicted_category}")
 
     # Fetch movie details
     tmdb_details, omdb_details = fetch_movie_details(movie_title)
 
-    # Create two columns for displaying the movie details side by side
-    col1, col2 = st.columns([2, 1])
-
-    # Display TMDb details in the first column
-    with col1:
+    # Organize movie details into expandable sections for a more compact layout
+    with st.expander("Movie Details from TMDb"):
         if tmdb_details != "API Error" and tmdb_details != "Movie not found":
-            st.image(tmdb_details['poster'], caption=f"Poster of {tmdb_details['title']}", width=150)  # Adjusted image size
+            st.image(tmdb_details['poster'], caption=f"Poster of {tmdb_details['title']}", width=200)
             st.markdown(f"**Title:** {tmdb_details.get('title', 'N/A')}")
             st.markdown(f"**Release Date:** {tmdb_details.get('release_date', 'N/A')}")
             st.markdown(f"**Overview:** {tmdb_details.get('overview', 'N/A')}")
@@ -160,10 +163,9 @@ if movie_title:
         else:
             st.write("No TMDb details found")
 
-    # Display OMDb details in the second column
-    with col2:
+    with st.expander("Movie Details from OMDb"):
         if omdb_details != "API Error" and omdb_details != "Movie not found":
-            st.image(omdb_details['poster'], caption=f"Poster of {omdb_details['title']}", width=150)  # Adjusted image size
+            st.image(omdb_details['poster'], caption=f"Poster of {omdb_details['title']}", width=200)
             st.markdown(f"**Title:** {omdb_details.get('title', 'N/A')}")
             st.markdown(f"**Year:** {omdb_details.get('year', 'N/A')}")
             st.markdown(f"**Plot:** {omdb_details.get('plot', 'N/A')}")
@@ -206,6 +208,10 @@ st.markdown(
 
     .stImage {
         border-radius: 10px;
+    }
+
+    .stExpander {
+        background-color: #f0f0f5;
     }
     </style>
     """, unsafe_allow_html=True
