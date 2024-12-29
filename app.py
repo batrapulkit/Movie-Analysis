@@ -1,32 +1,54 @@
 import streamlit as st
+import pandas as pd
+import pickle
 import requests
+from tabulate import tabulate
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.linear_model import LogisticRegression
+from sklearn.preprocessing import StandardScaler
 
-# TMDb API integration - Fetch movie details
-def fetch_tmdb_movie_details(movie_name):
-    api_key = 'your_tmdb_api_key'
-    base_url = "https://api.themoviedb.org/3/search/movie"
-    params = {
-        'api_key': api_key,
-        'query': movie_name
+# Load the pre-trained sentiment model and dataset
+@st.cache_resource
+def load_model():
+    with open('sentiment_model.pkl', 'rb') as model_file:
+        model = pickle.load(model_file)
+    return model
+
+@st.cache_data
+def load_data():
+    df = pd.read_csv('movies.csv')  # Replace with your dataset path
+    return df
+
+# Placeholder function for dynamic platform data
+def fetch_dynamic_platforms(movie_name):
+    platforms = {
+        "Guardians of the Galaxy Vol. 2": ["Netflix", "Disney+"],
+        "The Dark Knight": ["HBO Max", "Amazon Prime", "Netflix"],
+        "Inception": ["Netflix", "Hulu", "Amazon Prime"]
     }
+    return platforms.get(movie_name, ["Platform info not available"])
+
+# TMDb API integration - Fetch detailed movie info for runtime and other data
+def fetch_tmdb_movie_details(movie_name):
+    api_key = 'da80b7c25c785e5cb5e5bc96d3f1e213'  # Replace with your TMDb API key
+    base_url = "https://api.themoviedb.org/3/search/movie"
+    params = {'api_key': api_key, 'query': movie_name}
     response = requests.get(base_url, params=params)
     if response.status_code == 200:
         data = response.json()
         if data['results']:
             movie = data['results'][0]
-            movie_id = movie.get('id')  # TMDb movie ID
+            movie_id = movie.get('id')
             return fetch_tmdb_movie_details_by_id(movie_id)
         else:
-            return {"error": "Movie not found in TMDb."}
+            return "Movie not found"
     else:
-        return {"error": "API Error in fetching TMDb details."}
+        return "API Error"
 
 def fetch_tmdb_movie_details_by_id(movie_id):
-    api_key = 'your_tmdb_api_key'
+    api_key = 'da80b7c25c785e5cb5e5bc96d3f1e213'
     base_url = f"https://api.themoviedb.org/3/movie/{movie_id}"
-    params = {
-        'api_key': api_key
-    }
+    params = {'api_key': api_key}
     response = requests.get(base_url, params=params)
     if response.status_code == 200:
         movie_data = response.json()
@@ -34,19 +56,17 @@ def fetch_tmdb_movie_details_by_id(movie_id):
             'title': movie_data.get('title', 'N/A'),
             'release_date': movie_data.get('release_date', 'N/A'),
             'overview': movie_data.get('overview', 'N/A'),
-            'runtime': movie_data.get('runtime', 'N/A')  # TMDb provides runtime
+            'runtime': movie_data.get('runtime', 'N/A'),
+            'platforms': fetch_dynamic_platforms(movie_data.get('title', 'N/A'))
         }
     else:
-        return {"error": "API Error in fetching detailed TMDb data."}
+        return "API Error"
 
-# OMDb API integration - Fetch movie details
+# OMDb API integration
 def fetch_omdb_movie_details(movie_name):
-    api_key = 'your_omdb_api_key'
+    api_key = 'ca972f5'  # Replace with your OMDb API key
     base_url = "http://www.omdbapi.com/"
-    params = {
-        'apikey': api_key,
-        't': movie_name
-    }
+    params = {'apikey': api_key, 't': movie_name}
     response = requests.get(base_url, params=params)
     if response.status_code == 200:
         data = response.json()
@@ -57,57 +77,79 @@ def fetch_omdb_movie_details(movie_name):
                 'plot': data.get('Plot', 'N/A'),
                 'actors': data.get('Actors', 'N/A'),
                 'imdb_rating': data.get('imdbRating', 'N/A'),
-                'runtime': data.get('Runtime', 'N/A')  # OMDb runtime
+                'runtime': data.get('Runtime', 'N/A')
             }
         else:
-            return {"error": "Movie not found in OMDb."}
+            return "Movie not found"
     else:
-        return {"error": "API Error in fetching OMDb details."}
+        return "API Error"
 
-# Function to fetch movie details from both APIs and display separately
+# Function to fetch movie details from both APIs and display in a table format
 def fetch_movie_details(movie_name):
     tmdb_details = fetch_tmdb_movie_details(movie_name)
     omdb_details = fetch_omdb_movie_details(movie_name)
 
-    # Layout for movie details display
-    if 'error' not in tmdb_details and 'error' not in omdb_details:
-        col1, col2 = st.columns(2)
+    return tmdb_details, omdb_details
 
-        # TMDb movie details in column 1
-        with col1:
-            st.markdown(f"### TMDb Movie Details")
-            st.markdown(f"**Title:** {tmdb_details['title']}")
-            st.markdown(f"**Release Date:** {tmdb_details['release_date']}")
-            st.markdown(f"**Runtime:** {tmdb_details['runtime']} minutes")
-            st.markdown(f"**Overview:** {tmdb_details['overview'][:250]}...")
+# Streamlit interface
+st.title("Movie Rating Prediction and Details")
 
-        # OMDb movie details in column 2
-        with col2:
-            st.markdown(f"### OMDb Movie Details")
-            st.markdown(f"**Title:** {omdb_details['title']}")
-            st.markdown(f"**Year:** {omdb_details['year']}")
-            st.markdown(f"**IMDB Rating:** {omdb_details['imdb_rating']}")
-            st.markdown(f"**Runtime:** {omdb_details['runtime']}")
-            st.markdown(f"**Actors:** {omdb_details['actors']}")
-            st.markdown(f"**Plot:** {omdb_details['plot'][:250]}...")
-
-    else:
-        # Display errors
-        if 'error' in tmdb_details:
-            st.error(f"TMDb Error: {tmdb_details['error']}")
-        if 'error' in omdb_details:
-            st.error(f"OMDb Error: {omdb_details['error']}")
-
-# Streamlit frontend
-st.title("Movie Information Search")
 movie_title = st.text_input("Enter Movie Title")
 
 if movie_title:
-    with st.spinner('Fetching movie details...'):
-        fetch_movie_details(movie_title)
+    # Load dataset and model
+    df = load_data()
+    model = load_model()
 
-st.markdown("""
-    <footer style="text-align:center; padding-top: 30px;">
-        <p style="font-size: 14px; color: #777;">Powered by Streamlit | <a href="https://www.themoviedb.org/" target="_blank">TMDb</a> & <a href="https://www.omdbapi.com/" target="_blank">OMDb</a></p>
-    </footer>
-    """, unsafe_allow_html=True)
+    # Movie rating prediction
+    def preprocess_text(text):
+        return text.lower()
+
+    def predict_rating_category_from_dataset(title, df, model):
+        processed_title = preprocess_text(title)
+        movie_data = df[df['title'].str.contains(title, case=False, na=False)]
+        
+        if not movie_data.empty:
+            rating = pd.to_numeric(movie_data.iloc[0]['rating'], errors='coerce')
+            if not pd.isna(rating):
+                if rating >= 7:
+                    return "Good"
+                elif 5 <= rating < 7:
+                    return "Neutral"
+                else:
+                    return "Bad"
+            else:
+                return "Invalid rating data"
+        else:
+            return "Movie not found in dataset"
+
+    # Display rating prediction
+    predicted_category = predict_rating_category_from_dataset(movie_title, df, model)
+    st.subheader(f"Predicted category for '{movie_title}':")
+    st.write(f"**{predicted_category}**")
+
+    # Fetch movie details
+    tmdb_details, omdb_details = fetch_movie_details(movie_title)
+
+    # Display TMDb details in a collapsible section
+    with st.expander("TMDb Details"):
+        if tmdb_details != "API Error" and tmdb_details != "Movie not found":
+            st.write(f"**Title:** {tmdb_details.get('title', 'N/A')}")
+            st.write(f"**Release Date:** {tmdb_details.get('release_date', 'N/A')}")
+            st.write(f"**Overview:** {tmdb_details.get('overview', 'N/A')}")
+            st.write(f"**Runtime:** {tmdb_details.get('runtime', 'N/A')}")
+            st.write(f"**Platforms:** {', '.join(tmdb_details.get('platforms', []))}")
+        else:
+            st.write("No TMDb details found")
+
+    # Display OMDb details in a collapsible section
+    with st.expander("OMDb Details"):
+        if omdb_details != "API Error" and omdb_details != "Movie not found":
+            st.write(f"**Title:** {omdb_details.get('title', 'N/A')}")
+            st.write(f"**Year:** {omdb_details.get('year', 'N/A')}")
+            st.write(f"**Plot:** {omdb_details.get('plot', 'N/A')}")
+            st.write(f"**Actors:** {omdb_details.get('actors', 'N/A')}")
+            st.write(f"**IMDb Rating:** {omdb_details.get('imdb_rating', 'N/A')}")
+            st.write(f"**Runtime:** {omdb_details.get('runtime', 'N/A')}")
+        else:
+            st.write("No OMDb details found")
