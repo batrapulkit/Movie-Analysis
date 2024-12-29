@@ -57,7 +57,8 @@ def fetch_tmdb_movie_details_by_id(movie_id):
             'release_date': movie_data.get('release_date', 'N/A'),
             'overview': movie_data.get('overview', 'N/A'),
             'runtime': movie_data.get('runtime', 'N/A'),
-            'platforms': fetch_dynamic_platforms(movie_data.get('title', 'N/A'))
+            'platforms': fetch_dynamic_platforms(movie_data.get('title', 'N/A')),
+            'poster': f"https://image.tmdb.org/t/p/w500{movie_data.get('poster_path', '')}"  # Poster URL
         }
     else:
         return "API Error"
@@ -77,7 +78,8 @@ def fetch_omdb_movie_details(movie_name):
                 'plot': data.get('Plot', 'N/A'),
                 'actors': data.get('Actors', 'N/A'),
                 'imdb_rating': data.get('imdbRating', 'N/A'),
-                'runtime': data.get('Runtime', 'N/A')
+                'runtime': data.get('Runtime', 'N/A'),
+                'poster': data.get('Poster', 'N/A')  # Poster URL
             }
         else:
             return "Movie not found"
@@ -92,9 +94,22 @@ def fetch_movie_details(movie_name):
     return tmdb_details, omdb_details
 
 # Streamlit interface
+st.set_page_config(page_title="Movie Rating Prediction and Details", layout="wide")
+
+# Add some custom CSS for a better look
+st.markdown("""
+    <style>
+        .title { color: #FF6347; font-size: 36px; font-weight: bold; }
+        .movie-title { color: #2E8B57; font-size: 30px; font-weight: bold; }
+        .movie-details { font-size: 18px; }
+        .header { text-align: center; font-size: 24px; }
+        .platforms { color: #6A5ACD; }
+    </style>
+""", unsafe_allow_html=True)
+
 st.title("Movie Rating Prediction and Details")
 
-movie_title = st.text_input("Enter Movie Title")
+movie_title = st.text_input("Enter Movie Title", "")
 
 if movie_title:
     # Load dataset and model
@@ -121,35 +136,48 @@ if movie_title:
             else:
                 return "Invalid rating data"
         else:
-            return "Movie not found in dataset"
+            return None  # Return None if movie is not found in the dataset
 
-    # Display rating prediction
+    # Get predicted category
     predicted_category = predict_rating_category_from_dataset(movie_title, df, model)
-    st.subheader(f"Predicted category for '{movie_title}':")
-    st.write(f"**{predicted_category}**")
-
+    if predicted_category:  # Only show if a category is predicted
+        st.subheader(f"Predicted category for **{movie_title}**:")
+        st.write(f"**{predicted_category}**", unsafe_allow_html=True)
+    
     # Fetch movie details
     tmdb_details, omdb_details = fetch_movie_details(movie_title)
 
     # Display TMDb details in a collapsible section
     with st.expander("TMDb Details"):
         if tmdb_details != "API Error" and tmdb_details != "Movie not found":
-            st.write(f"**Title:** {tmdb_details.get('title', 'N/A')}")
-            st.write(f"**Release Date:** {tmdb_details.get('release_date', 'N/A')}")
-            st.write(f"**Overview:** {tmdb_details.get('overview', 'N/A')}")
-            st.write(f"**Runtime:** {tmdb_details.get('runtime', 'N/A')}")
-            st.write(f"**Platforms:** {', '.join(tmdb_details.get('platforms', []))}")
+            col1, col2 = st.columns([3, 2])
+            with col1:
+                if tmdb_details['poster'] != 'N/A':
+                    st.image(tmdb_details['poster'], caption=f"Poster of {tmdb_details['title']}")
+            with col2:
+                st.write(f"**Title:** {tmdb_details.get('title', 'N/A')}")
+                st.write(f"**Release Date:** {tmdb_details.get('release_date', 'N/A')}")
+                st.write(f"**Overview:** {tmdb_details.get('overview', 'N/A')}")
+                st.write(f"**Runtime:** {tmdb_details.get('runtime', 'N/A')} minutes")
+                st.write(f"**Available on:** {', '.join(tmdb_details.get('platforms', []))}")
+
         else:
             st.write("No TMDb details found")
 
     # Display OMDb details in a collapsible section
     with st.expander("OMDb Details"):
         if omdb_details != "API Error" and omdb_details != "Movie not found":
-            st.write(f"**Title:** {omdb_details.get('title', 'N/A')}")
-            st.write(f"**Year:** {omdb_details.get('year', 'N/A')}")
-            st.write(f"**Plot:** {omdb_details.get('plot', 'N/A')}")
-            st.write(f"**Actors:** {omdb_details.get('actors', 'N/A')}")
-            st.write(f"**IMDb Rating:** {omdb_details.get('imdb_rating', 'N/A')}")
-            st.write(f"**Runtime:** {omdb_details.get('runtime', 'N/A')}")
+            col1, col2 = st.columns([3, 2])
+            with col1:
+                if omdb_details['poster'] != 'N/A':
+                    st.image(omdb_details['poster'], caption=f"Poster of {omdb_details['title']}")
+            with col2:
+                st.write(f"**Title:** {omdb_details.get('title', 'N/A')}")
+                st.write(f"**Year:** {omdb_details.get('year', 'N/A')}")
+                st.write(f"**Plot:** {omdb_details.get('plot', 'N/A')}")
+                st.write(f"**Actors:** {omdb_details.get('actors', 'N/A')}")
+                st.write(f"**IMDb Rating:** {omdb_details.get('imdb_rating', 'N/A')}")
+                st.write(f"**Runtime:** {omdb_details.get('runtime', 'N/A')}")
+
         else:
             st.write("No OMDb details found")
