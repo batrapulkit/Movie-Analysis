@@ -2,6 +2,10 @@ import streamlit as st
 import pandas as pd
 import pickle
 import requests
+from tabulate import tabulate
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.linear_model import LogisticRegression
+from sklearn.preprocessing import StandardScaler
 
 # Load the pre-trained sentiment model and dataset
 @st.cache_resource
@@ -48,14 +52,13 @@ def fetch_tmdb_movie_details_by_id(movie_id):
     response = requests.get(base_url, params=params)
     if response.status_code == 200:
         movie_data = response.json()
-        poster_url = f"https://image.tmdb.org/t/p/w500{movie_data.get('poster_path', '')}" if movie_data.get('poster_path') else 'N/A'
         return {
             'title': movie_data.get('title', 'N/A'),
             'release_date': movie_data.get('release_date', 'N/A'),
             'overview': movie_data.get('overview', 'N/A'),
             'runtime': movie_data.get('runtime', 'N/A'),
             'platforms': fetch_dynamic_platforms(movie_data.get('title', 'N/A')),
-            'poster': poster_url
+            'poster': f"https://image.tmdb.org/t/p/w500{movie_data.get('poster_path', '')}"
         }
     else:
         return "API Error"
@@ -69,7 +72,6 @@ def fetch_omdb_movie_details(movie_name):
     if response.status_code == 200:
         data = response.json()
         if data['Response'] == "True":
-            poster_url = data.get('Poster', 'N/A')
             return {
                 'title': data.get('Title', 'N/A'),
                 'year': data.get('Year', 'N/A'),
@@ -77,7 +79,7 @@ def fetch_omdb_movie_details(movie_name):
                 'actors': data.get('Actors', 'N/A'),
                 'imdb_rating': data.get('imdbRating', 'N/A'),
                 'runtime': data.get('Runtime', 'N/A'),
-                'poster': poster_url
+                'poster': data.get('Poster', 'N/A')
             }
         else:
             return "Movie not found"
@@ -92,17 +94,15 @@ def fetch_movie_details(movie_name):
     return tmdb_details, omdb_details
 
 # Streamlit interface
-st.set_page_config(page_title="Movie Rating Prediction", layout="wide")
-st.title("🎬 Movie Rating Prediction and Details")
+st.title("Movie Rating Prediction and Details")
 
-# Sidebar for user inputs
-movie_title = st.sidebar.text_input("Enter Movie Title")
-
-# Load dataset and model for prediction
-df = load_data()
-model = load_model()
+movie_title = st.text_input("Enter Movie Title")
 
 if movie_title:
+    # Load dataset and model
+    df = load_data()
+    model = load_model()
+
     # Movie rating prediction
     def preprocess_text(text):
         return text.lower()
@@ -128,7 +128,7 @@ if movie_title:
     # Display rating prediction
     predicted_category = predict_rating_category_from_dataset(movie_title, df, model)
     st.subheader(f"Predicted category for '{movie_title}':")
-    st.markdown(f"**{predicted_category}**", unsafe_allow_html=True)
+    st.write(f"**{predicted_category}**")
 
     # Fetch movie details
     tmdb_details, omdb_details = fetch_movie_details(movie_title)
@@ -136,7 +136,7 @@ if movie_title:
     # Display TMDb details with a clean layout
     with st.expander("TMDb Details", expanded=True):
         if tmdb_details != "API Error" and tmdb_details != "Movie not found":
-            st.image(tmdb_details['poster'], caption=f"Poster of {tmdb_details['title']}", use_container_width=True, width=300)  # Reduced image width
+            st.image(tmdb_details['poster'], caption=f"Poster of {tmdb_details['title']}", use_container_width=True, width=200)  # Smaller image size
             st.markdown(f"**Title:** {tmdb_details.get('title', 'N/A')}")
             st.markdown(f"**Release Date:** {tmdb_details.get('release_date', 'N/A')}")
             st.markdown(f"**Overview:** {tmdb_details.get('overview', 'N/A')}")
@@ -148,7 +148,7 @@ if movie_title:
     # Display OMDb details with a clean layout
     with st.expander("OMDb Details", expanded=True):
         if omdb_details != "API Error" and omdb_details != "Movie not found":
-            st.image(omdb_details['poster'], caption=f"Poster of {omdb_details['title']}", use_container_width=True, width=300)  # Reduced image width
+            st.image(omdb_details['poster'], caption=f"Poster of {omdb_details['title']}", use_container_width=True, width=200)  # Smaller image size
             st.markdown(f"**Title:** {omdb_details.get('title', 'N/A')}")
             st.markdown(f"**Year:** {omdb_details.get('year', 'N/A')}")
             st.markdown(f"**Plot:** {omdb_details.get('plot', 'N/A')}")
@@ -157,22 +157,3 @@ if movie_title:
             st.markdown(f"**Runtime:** {omdb_details.get('runtime', 'N/A')}")
         else:
             st.write("No OMDb details found")
-
-# Footer with fixed positioning
-st.markdown("""
-    <style>
-        .footer {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            padding: 10px;
-            background-color: #333;
-            color: white;
-            text-align: center;
-        }
-    </style>
-    <div class="footer">
-        Made with ❤️ using Streamlit | Movie Rating Prediction App
-    </div>
-""", unsafe_allow_html=True)
