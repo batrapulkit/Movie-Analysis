@@ -139,26 +139,31 @@ if movie_title:
     # Fetch movie details
     tmdb_details, omdb_details = fetch_movie_details(movie_title)
 
-    # Display movie details from TMDb
+    # Display movie details side by side using columns
+    col1, col2 = st.columns(2)
+
+    # Movie details from TMDb in first column
     if tmdb_details != "API Error" and tmdb_details != "Movie not found":
-        st.image(tmdb_details['poster'], caption=f"Poster of {tmdb_details['title']}", width=200)
-        st.markdown(f"**Title:** {tmdb_details.get('title', 'N/A')}")
-        st.markdown(f"**Release Date:** {tmdb_details.get('release_date', 'N/A')}")
-        st.markdown(f"**Overview:** {tmdb_details.get('overview', 'N/A')}")
-        st.markdown(f"**Runtime:** {tmdb_details.get('runtime', 'N/A')} minutes")
-        st.markdown(f"**Available on:** {', '.join(tmdb_details.get('platforms', []))}")
+        with col1:
+            st.image(tmdb_details['poster'], caption=f"Poster of {tmdb_details['title']}", width=200)
+            st.markdown(f"**Title:** {tmdb_details.get('title', 'N/A')}")
+            st.markdown(f"**Release Date:** {tmdb_details.get('release_date', 'N/A')}")
+            st.markdown(f"**Overview:** {tmdb_details.get('overview', 'N/A')}")
+            st.markdown(f"**Runtime:** {tmdb_details.get('runtime', 'N/A')} minutes")
+            st.markdown(f"**Available on:** {', '.join(tmdb_details.get('platforms', []))}")
     else:
         st.write("No TMDb details found")
 
-    # Display movie details from OMDb
+    # Movie details from OMDb in second column
     if omdb_details != "API Error" and omdb_details != "Movie not found":
-        st.image(omdb_details['poster'], caption=f"Poster of {omdb_details['title']}", width=200)
-        st.markdown(f"**Title:** {omdb_details.get('title', 'N/A')}")
-        st.markdown(f"**Year:** {omdb_details.get('year', 'N/A')}")
-        st.markdown(f"**Plot:** {omdb_details.get('plot', 'N/A')}")
-        st.markdown(f"**Actors:** {omdb_details.get('actors', 'N/A')}")
-        st.markdown(f"**IMDb Rating:** {omdb_details.get('imdb_rating', 'N/A')}")
-        st.markdown(f"**Runtime:** {omdb_details.get('runtime', 'N/A')}")
+        with col2:
+            st.image(omdb_details['poster'], caption=f"Poster of {omdb_details['title']}", width=200)
+            st.markdown(f"**Title:** {omdb_details.get('title', 'N/A')}")
+            st.markdown(f"**Year:** {omdb_details.get('year', 'N/A')}")
+            st.markdown(f"**Plot:** {omdb_details.get('plot', 'N/A')}")
+            st.markdown(f"**Actors:** {omdb_details.get('actors', 'N/A')}")
+            st.markdown(f"**IMDb Rating:** {omdb_details.get('imdb_rating', 'N/A')}")
+            st.markdown(f"**Runtime:** {omdb_details.get('runtime', 'N/A')}")
     else:
         st.write("No OMDb details found")
 
@@ -195,10 +200,6 @@ st.markdown(
 
     .stImage {
         border-radius: 10px;
-    }
-
-    .stExpander {
-        background-color: #f0f0f5;
     }
     </style>
     """, unsafe_allow_html=True
