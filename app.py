@@ -93,15 +93,17 @@ def fetch_movie_details(movie_name):
     return tmdb_details, omdb_details
 
 # Streamlit interface
-st.title("Movie Rating Prediction and Details")
+st.set_page_config(page_title="Movie Rating Prediction", layout="wide")
+st.title("🎬 Movie Rating Prediction and Details")
 
-movie_title = st.text_input("Enter Movie Title")
+# Sidebar for user inputs
+movie_title = st.sidebar.text_input("Enter Movie Title")
+
+# Load dataset and model for prediction
+df = load_data()
+model = load_model()
 
 if movie_title:
-    # Load dataset and model
-    df = load_data()
-    model = load_model()
-
     # Movie rating prediction
     def preprocess_text(text):
         return text.lower()
@@ -127,12 +129,12 @@ if movie_title:
     # Display rating prediction
     predicted_category = predict_rating_category_from_dataset(movie_title, df, model)
     st.subheader(f"Predicted category for '{movie_title}':")
-    st.write(f"**{predicted_category}**")
+    st.markdown(f"**{predicted_category}**", unsafe_allow_html=True)
 
     # Fetch movie details
     tmdb_details, omdb_details = fetch_movie_details(movie_title)
 
-    # Display TMDb details in a collapsible section
+    # Display TMDb details with a clean layout
     with st.expander("TMDb Details", expanded=True):
         if tmdb_details != "API Error" and tmdb_details != "Movie not found":
             col1, col2 = st.columns([3, 2])
@@ -140,15 +142,15 @@ if movie_title:
                 if tmdb_details['poster'] != 'N/A':
                     st.image(tmdb_details['poster'], caption=f"Poster of {tmdb_details['title']}", use_container_width=True)
             with col2:
-                st.write(f"**Title:** {tmdb_details.get('title', 'N/A')}")
-                st.write(f"**Release Date:** {tmdb_details.get('release_date', 'N/A')}")
-                st.write(f"**Overview:** {tmdb_details.get('overview', 'N/A')}")
-                st.write(f"**Runtime:** {tmdb_details.get('runtime', 'N/A')} minutes")
-                st.write(f"**Available on:** {', '.join(tmdb_details.get('platforms', []))}")
+                st.markdown(f"**Title:** {tmdb_details.get('title', 'N/A')}")
+                st.markdown(f"**Release Date:** {tmdb_details.get('release_date', 'N/A')}")
+                st.markdown(f"**Overview:** {tmdb_details.get('overview', 'N/A')}")
+                st.markdown(f"**Runtime:** {tmdb_details.get('runtime', 'N/A')} minutes")
+                st.markdown(f"**Available on:** {', '.join(tmdb_details.get('platforms', []))}")
         else:
             st.write("No TMDb details found")
 
-    # Display OMDb details in a collapsible section
+    # Display OMDb details with a clean layout
     with st.expander("OMDb Details", expanded=True):
         if omdb_details != "API Error" and omdb_details != "Movie not found":
             col1, col2 = st.columns([3, 2])
@@ -156,11 +158,30 @@ if movie_title:
                 if omdb_details['poster'] != 'N/A':
                     st.image(omdb_details['poster'], caption=f"Poster of {omdb_details['title']}", use_container_width=True)
             with col2:
-                st.write(f"**Title:** {omdb_details.get('title', 'N/A')}")
-                st.write(f"**Year:** {omdb_details.get('year', 'N/A')}")
-                st.write(f"**Plot:** {omdb_details.get('plot', 'N/A')}")
-                st.write(f"**Actors:** {omdb_details.get('actors', 'N/A')}")
-                st.write(f"**IMDb Rating:** {omdb_details.get('imdb_rating', 'N/A')}")
-                st.write(f"**Runtime:** {omdb_details.get('runtime', 'N/A')}")
+                st.markdown(f"**Title:** {omdb_details.get('title', 'N/A')}")
+                st.markdown(f"**Year:** {omdb_details.get('year', 'N/A')}")
+                st.markdown(f"**Plot:** {omdb_details.get('plot', 'N/A')}")
+                st.markdown(f"**Actors:** {omdb_details.get('actors', 'N/A')}")
+                st.markdown(f"**IMDb Rating:** {omdb_details.get('imdb_rating', 'N/A')}")
+                st.markdown(f"**Runtime:** {omdb_details.get('runtime', 'N/A')}")
         else:
             st.write("No OMDb details found")
+
+# Footer
+st.markdown("""
+    <style>
+        .footer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 10px;
+            background-color: #333;
+            color: white;
+            text-align: center;
+        }
+    </style>
+    <div class="footer">
+        Made with ❤️ using Streamlit | Movie Rating Prediction App
+    </div>
+""", unsafe_allow_html=True)
