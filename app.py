@@ -102,14 +102,15 @@ st.markdown("""
             background-image: url('https://images.unsplash.com/photo-1485826657971-8e78487eb09b');  /* Cool background image */
             background-size: cover;
             color: white;
-            font-family: 'Arial', sans-serif;
+            font-family: 'Poppins', sans-serif;
         }
         .title {
-            font-size: 48px;
+            font-size: 56px;
             font-weight: bold;
             color: #ff6347;
             text-align: center;
             text-shadow: 3px 3px 5px rgba(0,0,0,0.7);
+            font-family: 'Lobster', cursive;
         }
         .stButton button {
             background-color: #ff6347;
