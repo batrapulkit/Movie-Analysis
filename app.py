@@ -1,43 +1,5 @@
 import streamlit as st
-import pandas as pd
 import requests
-from tabulate import tabulate
-
-# Custom CSS for styling
-st.markdown("""
-    <style>
-    .header {
-        font-size: 40px;
-        font-weight: bold;
-        color: #FF6347;
-    }
-    .subtitle {
-        font-size: 30px;
-        font-weight: 500;
-        color: #008080;
-    }
-    .movie-title {
-        font-size: 24px;
-        font-weight: 600;
-        color: #2F4F4F;
-    }
-    .movie-details {
-        font-size: 18px;
-        color: #555;
-    }
-    .movie-card {
-        border: 2px solid #FF6347;
-        border-radius: 10px;
-        padding: 15px;
-        margin: 10px 0;
-        background-color: #f8f8f8;
-    }
-    .movie-overview {
-        font-style: italic;
-        color: #808080;
-    }
-    </style>
-    """, unsafe_allow_html=True)
 
 # TMDb API integration - Fetch movie details
 def fetch_tmdb_movie_details(movie_name):
@@ -55,10 +17,10 @@ def fetch_tmdb_movie_details(movie_name):
             movie_id = movie.get('id')  # TMDb movie ID
             return fetch_tmdb_movie_details_by_id(movie_id)
         else:
-            return "Movie not found"
+            return {"error": "Movie not found in TMDb."}
     else:
-        return "API Error"
-    
+        return {"error": "API Error in fetching TMDb details."}
+
 def fetch_tmdb_movie_details_by_id(movie_id):
     api_key = 'your_tmdb_api_key'
     base_url = f"https://api.themoviedb.org/3/movie/{movie_id}"
@@ -69,13 +31,13 @@ def fetch_tmdb_movie_details_by_id(movie_id):
     if response.status_code == 200:
         movie_data = response.json()
         return {
-            'title': movie_data.get('title'),
-            'release_date': movie_data.get('release_date'),
-            'overview': movie_data.get('overview'),
-            'runtime': movie_data.get('runtime', 'N/A'),  # TMDb provides runtime
+            'title': movie_data.get('title', 'N/A'),
+            'release_date': movie_data.get('release_date', 'N/A'),
+            'overview': movie_data.get('overview', 'N/A'),
+            'runtime': movie_data.get('runtime', 'N/A')  # TMDb provides runtime
         }
     else:
-        return "API Error"
+        return {"error": "API Error in fetching detailed TMDb data."}
 
 # OMDb API integration - Fetch movie details
 def fetch_omdb_movie_details(movie_name):
@@ -90,17 +52,17 @@ def fetch_omdb_movie_details(movie_name):
         data = response.json()
         if data['Response'] == "True":
             return {
-                'title': data.get('Title'),
-                'year': data.get('Year'),
-                'plot': data.get('Plot'),
-                'actors': data.get('Actors'),
-                'imdb_rating': data.get('imdbRating'),
-                'runtime': data.get('Runtime')  # OMDb runtime
+                'title': data.get('Title', 'N/A'),
+                'year': data.get('Year', 'N/A'),
+                'plot': data.get('Plot', 'N/A'),
+                'actors': data.get('Actors', 'N/A'),
+                'imdb_rating': data.get('imdbRating', 'N/A'),
+                'runtime': data.get('Runtime', 'N/A')  # OMDb runtime
             }
         else:
-            return "Movie not found"
+            return {"error": "Movie not found in OMDb."}
     else:
-        return "API Error"
+        return {"error": "API Error in fetching OMDb details."}
 
 # Function to fetch movie details from both APIs and display separately
 def fetch_movie_details(movie_name):
@@ -108,7 +70,7 @@ def fetch_movie_details(movie_name):
     omdb_details = fetch_omdb_movie_details(movie_name)
 
     # Layout for movie details display
-    if tmdb_details != "Movie not found" and omdb_details != "Movie not found":
+    if 'error' not in tmdb_details and 'error' not in omdb_details:
         col1, col2 = st.columns(2)
 
         # TMDb movie details in column 1
@@ -128,6 +90,13 @@ def fetch_movie_details(movie_name):
             st.markdown(f"**Runtime:** {omdb_details['runtime']}")
             st.markdown(f"**Actors:** {omdb_details['actors']}")
             st.markdown(f"**Plot:** {omdb_details['plot'][:250]}...")
+
+    else:
+        # Display errors
+        if 'error' in tmdb_details:
+            st.error(f"TMDb Error: {tmdb_details['error']}")
+        if 'error' in omdb_details:
+            st.error(f"OMDb Error: {omdb_details['error']}")
 
 # Streamlit frontend
 st.title("Movie Information Search")
