@@ -94,10 +94,22 @@ def fetch_movie_details(movie_name):
     return tmdb_details, omdb_details
 
 # Streamlit interface
-st.title("Movie Rating Prediction and Details")
+st.set_page_config(page_title="Movie Rating Prediction", page_icon=":movie_camera:", layout="wide")
+st.title("🎬 Movie Rating Prediction & Details")
 
-movie_title = st.text_input("Enter Movie Title")
+# Sidebar for input
+with st.sidebar:
+    st.header("Movie Search")
+    movie_title = st.text_input("Enter Movie Title", key="movie_title")
 
+    st.markdown(
+        """
+        This app allows you to predict movie ratings, get movie details, and find out where the movie is available for streaming.
+        Enter a movie title in the search box to get started!
+        """
+    )
+
+# Main content
 if movie_title:
     # Load dataset and model
     df = load_data()
@@ -160,3 +172,41 @@ if movie_title:
             st.markdown(f"**Runtime:** {omdb_details.get('runtime', 'N/A')}")
         else:
             st.write("No OMDb details found")
+
+# Custom CSS for better UI
+st.markdown(
+    """
+    <style>
+    .stButton>button {
+        background-color: #2f54eb;
+        color: white;
+        font-size: 16px;
+        font-weight: bold;
+        border-radius: 5px;
+        padding: 10px 20px;
+        border: none;
+    }
+
+    .stTextInput>div>div>input {
+        border-radius: 5px;
+        padding: 10px;
+    }
+
+    .stTitle {
+        font-size: 36px;
+        font-weight: 600;
+        color: #2f54eb;
+    }
+
+    .stSubheader {
+        font-size: 24px;
+        font-weight: 600;
+        color: #595959;
+    }
+
+    .stImage {
+        border-radius: 10px;
+    }
+    </style>
+    """, unsafe_allow_html=True
+)
