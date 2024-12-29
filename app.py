@@ -101,20 +101,8 @@ st.write(
     "Welcome to the Movie Rating Prediction app! Enter a movie title below to predict its rating and get detailed movie information like runtime, plot, and where to watch it."
 )
 
-# Sidebar: Movie Title Input
-with st.sidebar:
-    st.header("Search Movie")
-    movie_title = st.text_input("Enter Movie Title", key="movie_title", placeholder="e.g., Inception")
-
-    # Instructions
-    st.markdown(
-        """
-        Enter the title of the movie you're interested in. The app will predict its rating and fetch additional details such as:
-        - Plot summary
-        - Cast and actors
-        - Available streaming platforms
-        """
-    )
+# Movie Title Input without the sidebar
+movie_title = st.text_input("Enter Movie Title", key="movie_title", placeholder="e.g., Inception")
 
 # Main Content: If movie title is entered
 if movie_title:
